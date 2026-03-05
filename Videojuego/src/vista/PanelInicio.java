@@ -22,9 +22,13 @@ public class PanelInicio extends JPanel {
 
 		// Crear botón
 		JButton botonJugar = new JButton("EMPEZAR JUEGO");
-		botonJugar.setBounds(525, 600, 150, 40); // posición y tamaño
+		botonJugar.setBounds(525, 500, 150, 40); // posición y tamaño
 		add(botonJugar);
 
+		JButton botonPersonaje = new JButton("ELEGIR PERSONAJE");
+		botonPersonaje.setBounds(520, 400, 160, 40);
+		add(botonPersonaje);
+		
 		// Acción del botón
 		botonJugar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
