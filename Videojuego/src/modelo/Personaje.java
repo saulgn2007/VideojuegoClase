@@ -2,8 +2,9 @@ package modelo;
 
 public class Personaje {
 
-	protected int vidaBueno;
-	protected int vidaMalo;
+	protected int vidaBueno = 3;
+	protected int vidaMalo = 1;
+	
 	
 	public Personaje(int vidaBueno, int vidaMalo) {
 		this.vidaBueno = vidaBueno;

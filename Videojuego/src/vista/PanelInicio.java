@@ -18,17 +18,17 @@ public class PanelInicio extends JPanel {
 
 		setLayout(null); // Necesario para posicionar el botón manualmente
 
-		imagen = new ImageIcon(getClass().getResource("/utils/inicio.png")).getImage();
+		imagen = new ImageIcon(getClass().getResource("/utils/fondo.png")).getImage();
 
 		// Crear botón
-		JButton botonJugar = new JButton("EMPEZAR JUEGO");
-		botonJugar.setBounds(525, 500, 150, 40); // posición y tamaño
+		BotonesRetro botonJugar = new BotonesRetro("EMPEZAR JUEGO");
+		botonJugar.setBounds(380, 500, 150, 40); // Posición y tamaño del botón
 		add(botonJugar);
 
-		JButton botonPersonaje = new JButton("ELEGIR PERSONAJE");
-		botonPersonaje.setBounds(520, 400, 160, 40);
+		BotonesRetro botonPersonaje = new BotonesRetro("ELEGIR PERSONAJE");
+		botonPersonaje.setBounds(610, 500, 200, 40);
 		add(botonPersonaje);
-		
+
 		// Acción del botón
 		botonJugar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
