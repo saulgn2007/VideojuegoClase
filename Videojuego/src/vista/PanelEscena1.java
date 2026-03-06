@@ -69,7 +69,7 @@ public class PanelEscena1 extends JPanel implements KeyListener {
 		imgEnemigo = new ImageIcon(getClass().getResource("/utils/bot1.png")).getImage();
 
 		// Generar enemigos
-		int cantidadEnemigos = 4;
+		int cantidadEnemigos = 1;
 		while(enemigos.size() < cantidadEnemigos) {
 			int ex = rand.nextInt(mapa[0].length);
 			int ey = rand.nextInt(mapa.length);
@@ -263,7 +263,7 @@ public class PanelEscena1 extends JPanel implements KeyListener {
 					Clip tictac = reproducirSonido("tictacsonido.wav");
 
 					try { 
-						Thread.sleep(2000); 
+						Thread.sleep(800); 
 					} catch(InterruptedException ex){}
 
 					if (tictac != null && tictac.isRunning()) {
@@ -281,6 +281,8 @@ public class PanelEscena1 extends JPanel implements KeyListener {
 					romperBloques();
 					repaint();
 
+					verificarVictoria();
+					
 					try { 
 						Thread.sleep(500); 
 					} catch(InterruptedException ex){}
@@ -322,6 +324,36 @@ public class PanelEscena1 extends JPanel implements KeyListener {
 		}
 	}
 
+	private void verificarVictoria() {
+		boolean todosMuertos = true;
+		for(Enemigo en : enemigos) {
+			if(en.vivo) {
+				todosMuertos = false;
+				break;
+			}
+		}
+		
+		//Si no encontramos a ningún enemigo vivo, el jugador gana
+		if(todosMuertos) {
+			jugando = false;// Bloquea movimiento y bombas
+			
+			//Para asegurarnos de que el cambio de interfaz no da errores
+			SwingUtilities.invokeLater(() -> {
+				
+				VideoJuego ventana = (VideoJuego) SwingUtilities.getWindowAncestor(PanelEscena1.this);
+				
+				PanelEscena2 escena2 = new PanelEscena2();
+				
+				ventana.setContentPane(escena2);
+				ventana.revalidate();
+				ventana.repaint();
+				
+				escena2.requestFocusInWindow(); // Asegura que el nuevo panel tenga el foco para recibir eventos de teclado
+			});
+		}
+	}
+	
+	
 	private void reiniciarJuego() {
 		jugadorVida = new Personaje(3,1);
 		x = 1; y = 1;
