@@ -59,7 +59,7 @@ public class PanelEscena2 extends JPanel implements KeyListener {
 		imgEnemigo = new ImageIcon(getClass().getResource("/utils/bot2.png")).getImage();
 
 		// Generar enemigos
-		int cantidadEnemigos = 1;
+		int cantidadEnemigos = 8;
 		while(enemigos.size() < cantidadEnemigos) {
 			int ex = rand.nextInt(mapa[0].length);
 			int ey = rand.nextInt(mapa.length);
