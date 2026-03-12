@@ -10,6 +10,7 @@ import java.io.InputStream;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -61,7 +62,12 @@ public class PanelInicio extends JPanel {
 			clip = AudioSystem.getClip();
 			clip.open(audioStream);
 			
+			//CONTROL DEL VOLUMEN
+			 FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+			 gainControl.setValue(-20.0f); // Reducir el volumen en 10 decibelios	
 			clip.loop(Clip.LOOP_CONTINUOUSLY); // Reproducir en bucle
+			
+			
 			clip.start();
 			
 		} catch (Exception e) {
