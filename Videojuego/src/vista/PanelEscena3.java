@@ -19,20 +19,20 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import modelo.Personaje;
 
-class Enemigo2 {
+class Enemigo3 {
 	double x, y; // Coordenadas en píxeles
 	double vel = 2.5; // Velocidad de desplazamiento fluido
 	String direccion = "Abajo";
 	boolean vivo = true;
 
-	public Enemigo2(int gridX, int gridY) { 
+	public Enemigo3(int gridX, int gridY) { 
 		// Convertimos la posición de la cuadrícula a píxeles iniciales
 		this.x = gridX * 70; 
 		this.y = gridY * 70; 
 	}
 }
 
-public class PanelEscena2 extends JPanel implements KeyListener {
+public class PanelEscena3 extends JPanel implements KeyListener {
 
 	private Personaje jugadorVida = new Personaje(3, 1);
 	private static final long serialVersionUID = 1L;
@@ -56,7 +56,7 @@ public class PanelEscena2 extends JPanel implements KeyListener {
 
 	private boolean jugando = true, invulnerable = false;
 
-	public PanelEscena2() {
+	public PanelEscena3() {
 		mapa = new int[11][17]; 
 		Random rand = new Random();
 		
@@ -137,11 +137,11 @@ public class PanelEscena2 extends JPanel implements KeyListener {
 
 	private void cargarRecursos() {
 		imgParedIrrompible = cargarImagen("/utils/suelopiedra2.png");
-		imgPared = cargarImagen("/utils/suelopiedra4.png");
-		imgSuelo = cargarImagen("/utils/suelopiedra5.jpg");
+		imgPared = cargarImagen("/utils/glowstone.jpg");
+		imgSuelo = cargarImagen("/utils/suelopiedra3.png");
 		imgExplosion = cargarImagen("/utils/explosion.png");
 		imgBomba = cargarImagen("/utils/bomba.png");
-		imgEnemigo = cargarImagen("/utils/bot2.png");
+		imgEnemigo = cargarImagen("/utils/bot4.png");
 		imgVida = cargarImagen("/utils/corazonlleno.png");
 		imgVidaVacia = cargarImagen("/utils/corazonvacio.png");
 
@@ -364,15 +364,12 @@ public class PanelEscena2 extends JPanel implements KeyListener {
 			jugando = false;
 			SwingUtilities.invokeLater(() -> {
 				VideoJuego v = (VideoJuego) SwingUtilities.getWindowAncestor(this);
-				PanelEscena3 e3 = new PanelEscena3(); // Creamos el nuevo panel de victoria Panel3
-				
-				v.setContentPane(e3); // Cambiamos al nuevo panel de victoria
-				v.revalidate(); // Para que el nuevo panel se muestre correctamente
-				e3.requestFocusInWindow(); // Para que el nuevo panel reciba los eventos de teclado
+				PanelEscena4 e4 = new PanelEscena4(); v.setContentPane(e4); v.revalidate(); e4.requestFocusInWindow();
 			});
 		}
 	}
 
+	// Genera enemigos en posiciones aleatorias del mapa que sean suelos (0) y no la posición inicial del jugador
 	private void generarEnemigos() {
 		Random r = new Random(); enemigos.clear();
 		while(enemigos.size()<1) {
