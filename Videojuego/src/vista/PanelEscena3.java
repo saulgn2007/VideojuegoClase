@@ -37,11 +37,10 @@ public class PanelEscena3 extends JPanel implements KeyListener {
 	private Personaje jugadorVida = new Personaje(3, 1);
 	private static final long serialVersionUID = 1L;
 	private Image imgParedIrrompible, imgSuelo, imgPared, imgExplosion, imgBomba, imgEnemigo, imgVida, imgVidaVacia;
-
 	private Image[] animArriba = new Image[9], animAbajo = new Image[9], animIzquierda = new Image[9];
 	private int frameActual = 0;
 	private long ultimoCambioFrame = 0;
-
+	private boolean primeraBomba = true; // Para evitar que la primera bomba dañe al jugador
 	private final int TAMANO_CELDA = 70;
 	private int[][] mapa; 
 
@@ -283,9 +282,14 @@ public class PanelEscena3 extends JPanel implements KeyListener {
 	@Override
 	public void keyReleased(KeyEvent e) {
 		int k = e.getKeyCode();
-		if ((k==KeyEvent.VK_UP && direccionActual.equals("Arriba")) || (k==KeyEvent.VK_DOWN && direccionActual.equals("Abajo")) ||
-				(k==KeyEvent.VK_LEFT && direccionActual.equals("Izquierda")) || (k==KeyEvent.VK_RIGHT && direccionActual.equals("Derecha")))
+
+		if ((k == KeyEvent.VK_UP || k == KeyEvent.VK_W) && direccionActual.equals("Arriba") ||
+			(k == KeyEvent.VK_DOWN || k == KeyEvent.VK_S) && direccionActual.equals("Abajo") ||
+			(k == KeyEvent.VK_LEFT || k == KeyEvent.VK_A) && direccionActual.equals("Izquierda") ||
+			(k == KeyEvent.VK_RIGHT || k == KeyEvent.VK_D) && direccionActual.equals("Derecha")) {
+
 			moviendose = false;
+		}
 	}
 
 	private void ejecutarBomba() {
@@ -309,10 +313,22 @@ public class PanelEscena3 extends JPanel implements KeyListener {
 	}
 
 	private void verificarGolpeBomba() {
+
+		// La primera bomba no hace daño al jugador
+		if (primeraBomba) {
+			primeraBomba = false;
+			return;
+		}
+
 		if (invulnerable) return;
-		int cx = (int)Math.round(posX/70), cy = (int)Math.round(posY/70);
+
+		int cx = (int)Math.round(posX/70);
+		int cy = (int)Math.round(posY/70);
+
 		if (Math.abs(cx-bombaX)<=1 && cy==bombaY || Math.abs(cy-bombaY)<=1 && cx==bombaX) {
-			jugadorVida.recibirDano(1); reproducirSonido("golpeenemigo.wav"); aplicarInvulnerabilidad();
+			jugadorVida.recibirDano(1);
+			reproducirSonido("golpeenemigo.wav");
+			aplicarInvulnerabilidad();
 		}
 	}
 
@@ -376,7 +392,7 @@ public class PanelEscena3 extends JPanel implements KeyListener {
 	// Genera enemigos en posiciones aleatorias del mapa que sean suelos (0) y no la posición inicial del jugador
 	private void generarEnemigos() {
 		Random r = new Random(); enemigos.clear();
-		while(enemigos.size()<1) {
+		while(enemigos.size()<10) {
 			int ex=r.nextInt(17), ey=r.nextInt(11);
 			if(mapa[ey][ex]==0 && (ex!=1 || ey!=1)) enemigos.add(new Enemigo(ex, ey));
 		}
