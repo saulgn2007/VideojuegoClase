@@ -420,8 +420,16 @@ public class PanelEscena3 extends JPanel implements KeyListener {
 			}
 		}
 		mapa[1][1] = 0;
-		posX = 70; posY = 70; jugadorVida = new Personaje(3,1); invulnerable = false;
-		generarEnemigos(); jugando = true; moviendose = false; direccionActual = "Abajo"; repaint(); 
+		posX = 70; 
+		posY = 70; 
+		jugadorVida = new Personaje(3,1); 
+		invulnerable = false;
+		primeraBomba = true;
+		generarEnemigos(); 
+		jugando = true; 
+		moviendose = false; 
+		direccionActual = "Abajo"; 
+		repaint(); 
 	}
 
 	@Override public void keyTyped(KeyEvent e) {}
