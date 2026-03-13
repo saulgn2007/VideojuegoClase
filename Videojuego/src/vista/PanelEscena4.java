@@ -340,10 +340,14 @@ public class PanelEscena4 extends JPanel implements KeyListener {
     @Override public void keyPressed(KeyEvent e) {
         if (!jugando) return;
         switch (e.getKeyCode()) {
-            case KeyEvent.VK_UP: direccionActual="Arriba"; moviendose=true; break;
-            case KeyEvent.VK_DOWN: direccionActual="Abajo"; moviendose=true; break;
-            case KeyEvent.VK_LEFT: direccionActual="Izquierda"; moviendose=true; break;
+            case KeyEvent.VK_UP: 	direccionActual="Arriba"; moviendose=true; break;
+            case KeyEvent.VK_W: 	direccionActual="Arriba"; moviendose=true; break;
+            case KeyEvent.VK_DOWN: 	direccionActual="Abajo"; moviendose=true; break;
+            case KeyEvent.VK_S: 	direccionActual="Abajo"; moviendose=true; break;
+            case KeyEvent.VK_LEFT: 	direccionActual="Izquierda"; moviendose=true; break;
+            case KeyEvent.VK_A: 	direccionActual="Izquierda"; moviendose=true; break;
             case KeyEvent.VK_RIGHT: direccionActual="Derecha"; moviendose=true; break;
+            case KeyEvent.VK_D: 	direccionActual="Derecha"; moviendose=true; break;
             case KeyEvent.VK_SPACE: if(!bombaActiva){bombaActiva=true; bombaX=(int)Math.round(posX/70); bombaY=(int)Math.round(posY/70); ejecutarBomba();} break;
         }
     }

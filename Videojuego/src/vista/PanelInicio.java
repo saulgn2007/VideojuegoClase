@@ -34,9 +34,9 @@ public class PanelInicio extends JPanel {
 		botonJugar.setBounds(380, 500, 150, 40); // Posición y tamaño del botón
 		add(botonJugar);
 
-		BotonesRetro botonPersonaje = new BotonesRetro("ELEGIR PERSONAJE");
-		botonPersonaje.setBounds(610, 500, 200, 40);
-		add(botonPersonaje);
+		BotonesRetro botonInstrucciones = new BotonesRetro("INSTRUCCIONES");
+		botonInstrucciones.setBounds(610, 500, 200, 40);
+		add(botonInstrucciones);
 
 		// Acción del botón
 		botonJugar.addActionListener(new ActionListener() {
@@ -47,6 +47,19 @@ public class PanelInicio extends JPanel {
 				VideoJuego ventana = (VideoJuego) SwingUtilities.getWindowAncestor(PanelInicio.this);
 
 				ventana.setContentPane(escena);
+				ventana.revalidate();
+				ventana.repaint();
+			}
+		});
+		
+		botonInstrucciones.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				// Abrir ventana de instrucciones
+				Instrucciones instrucciones = new Instrucciones();
+				VideoJuego ventana = (VideoJuego) SwingUtilities.getWindowAncestor(PanelInicio.this);
+
+				ventana.setContentPane(instrucciones);
 				ventana.revalidate();
 				ventana.repaint();
 			}
