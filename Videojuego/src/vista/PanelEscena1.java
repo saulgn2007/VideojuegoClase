@@ -388,7 +388,7 @@ public class PanelEscena1 extends JPanel implements KeyListener {
 
 	private void generarEnemigos() {
 		Random r = new Random(); enemigos.clear();
-		while(enemigos.size()<4) {
+		while(enemigos.size()<1) {
 			int ex=r.nextInt(17), ey=r.nextInt(11);
 			if(mapa[ey][ex]==0 && (ex!=1 || ey!=1)) enemigos.add(new Enemigo(ex, ey));
 		}
@@ -416,15 +416,8 @@ public class PanelEscena1 extends JPanel implements KeyListener {
 			}
 		}
 		mapa[1][1] = 0;
-		posX = 70; 
-		posY = 70; 
-		jugadorVida = new Personaje(3,1); 
-		invulnerable = false;
-		primeraBomba = true;
-		generarEnemigos(); jugando = true; 
-		moviendose = false; 
-		direccionActual = "Abajo"; 
-		repaint(); 
+		posX = 70; posY = 70; jugadorVida = new Personaje(3,1); invulnerable = false;
+		generarEnemigos(); jugando = true; moviendose = false; direccionActual = "Abajo"; repaint(); 
 	}
 
 	@Override public void keyTyped(KeyEvent e) {}

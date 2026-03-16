@@ -4,6 +4,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.Line;
+import javax.sound.sampled.Mixer;
 import java.net.URL;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -68,7 +70,6 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 	private String direccionActual = "Abajo";
 	private boolean moviendose = false;
 
-	// --- ESTADOS DE TECLAS PARA MOVIMIENTO FLUIDO ---
 	private boolean teclaArriba, teclaAbajo, teclaIzquierda, teclaDerecha;
 
 	private Enemigo4 rival; 
@@ -94,17 +95,37 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 
 		Timer gameLoop = new Timer(16, e -> {
 			if (jugando) {
-				actualizarMovimiento(); 
-				if (rival.vivo) {
-					actualizarMovimientoEnemigo(rival);
-					decidirAccionEnemigo();
-
+				actualizarMovimiento(); // Actualiza el movimiento del jugador basado en las teclas presionadas
+				if (rival.vivo) { // Solo actualiza al enemigo si sigue vivo
+					actualizarMovimientoEnemigo(rival); // Movimiento básico hacia el jugador
+					decidirAccionEnemigo(); // Decide si el enemigo suelta una bomba
 				}
-				verificarGolpeEnemigos();
-				repaint(); 
+				verificarGolpeEnemigos(); // Verifica si el enemigo ha golpeado al jugador
+				repaint(); // Redibuja el panel para reflejar los cambios
 			}
 		});
 		gameLoop.start();
+	}
+
+	/**
+	 * MÉTODO CLAVE: Detiene absolutamente todos los sonidos que estén sonando en el sistema.
+	 * Esto evita que la música del panel anterior se mezcle con la del nuevo.
+	 */
+	private void detenerTodoElAudio() {
+		try {
+			for (Mixer.Info info : AudioSystem.getMixerInfo()) { // Recorremos todos los mixers disponibles
+				Mixer mixer = AudioSystem.getMixer(info); // Obtenemos el mixer
+				for (Line line : mixer.getSourceLines()) { // Recorremos todas las líneas de audio que el mixer puede reproducir
+					if (line instanceof Clip) { // Si la línea es un Clip (un tipo común de línea que reproduce sonidos cortos)
+						Clip clip = (Clip) line; // Intentamos detener y cerrar el clip
+						if (clip.isRunning()) clip.stop(); // Detenemos el clip si está sonando
+						clip.close(); // Cerramos el clip para liberar recursos
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void reiniciarNivel() {
@@ -122,30 +143,24 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 	}
 
 	private void volverAlInicio() {
+		// Limpiamos cualquier sonido antes de crear el nuevo panel
+		detenerTodoElAudio();
+
+		//Cambiamos al PanelInicio en el hilo de eventos para evitar problemas de concurrencia
 		SwingUtilities.invokeLater(() -> {
 			Window ventana = SwingUtilities.getWindowAncestor(this);
 			if (ventana instanceof JFrame) {
 				JFrame frame = (JFrame) ventana;
-
-				// 1. Quitamos el panel actual
 				frame.getContentPane().removeAll();
 
-				// 2. Instanciamos el inicio
+				//Al instanciarse, PanelInicio llamará a su música y será la única sonando
 				PanelInicio menuPrincipal = new PanelInicio();
 
-				// 3. Lo ponemos como panel principal
 				frame.setContentPane(menuPrincipal);
-
-				// 4. RESET DE TAMAÑO: 
-				// Esto obliga al frame a olvidar el tamaño de la batalla
-				frame.setResizable(true); // Temporalmente para que pack() funcione bien
+				frame.setResizable(true);
 				frame.pack(); 
-
-				// 5. Centrar y bloquear (si quieres que no lo muevan)
 				frame.setLocationRelativeTo(null);
 				frame.setResizable(false); 
-
-				// 6. Refrescar visualmente
 				frame.revalidate();
 				frame.repaint();
 
@@ -154,6 +169,8 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 		});
 	}
 
+	
+	//Manejo de teclas para controlar el movimiento del jugador y otras acciones
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_R && !jugando) {
@@ -183,6 +200,8 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 		}
 	}
 
+	
+	//Al soltar las teclas, actualizamos el estado para que el personaje deje de moverse en esa dirección
 	@Override
 	public void keyReleased(KeyEvent e) {
 		switch (e.getKeyCode()) {
@@ -193,18 +212,25 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 		}
 	}
 
+	
+	//Este método actualiza la posición del jugador basado en las teclas presionadas y verifica colisiones con el mapa
 	private void actualizarMovimiento() {
 		double nx = posX, ny = posY;
 		boolean huboMovimiento = false;
 
+		//Calculamos la nueva posición basada en las teclas presionadas
 		if (teclaArriba) { ny -= velocidad; direccionActual = "Arriba"; huboMovimiento = true; }
 		else if (teclaAbajo) { ny += velocidad; direccionActual = "Abajo"; huboMovimiento = true; }
 
+		
+		//Si el jugador se mueve horizontalmente, actualizamos la dirección y marcamos que hubo movimiento
 		if (teclaIzquierda) { nx -= velocidad; direccionActual = "Izquierda"; huboMovimiento = true; }
 		else if (teclaDerecha) { nx += velocidad; direccionActual = "Derecha"; huboMovimiento = true; }
 
 		moviendose = huboMovimiento;
 
+		
+		//Verificamos que la nueva posición no colisione con paredes irrompibles usando un margen para el personaje
 		int m = 14, t = 42; 
 		if (esLibre(nx+m, ny+m) && esLibre(nx+m+t, ny+m) && esLibre(nx+m, ny+m+t) && esLibre(nx+m+t, ny+m+t)) {
 			posX = nx; posY = ny;
@@ -215,6 +241,8 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 		}
 	}
 
+	
+	//Este método se encarga de dibujar todo el escenario, personajes, bombas, explosiones y HUD (vida) en el panel
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -262,6 +290,8 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 		}
 	}
 
+	
+	//Este método decide si el enemigo suelta una bomba basado en la proximidad al jugador y una probabilidad aleatoria
 	private void decidirAccionEnemigo() {
 		Random r = new Random();
 		if (!rival.bombaActiva && rival.vivo) {
@@ -270,18 +300,23 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 			int cx = (int)Math.round(posX / 70);
 			int cy = (int)Math.round(posY / 70);
 
-			if (Math.abs(rx - cx) <= 4 && Math.abs(ry - cy) <= 4) { // Si el jugador está dentro de un rango de 4 celdas
-				if (r.nextInt(100) < 15) 
-					soltarBombaEnemigo(rx, ry); // 15% de probabilidad de soltar bomba si el jugador está cerca
+			if (Math.abs(rx - cx) <= 4 && Math.abs(ry - cy) <= 4) {
+				if (r.nextInt(100) < 15) soltarBombaEnemigo(rx, ry);
 			}
 		}
 	}
 
+	
+	//Este método maneja la lógica de la bomba del enemigo, incluyendo el temporizador, la explosión y el daño al jugador
 	private void soltarBombaEnemigo(int bx, int by) {
 		rival.bombaActiva = true; rival.bX = bx; rival.bY = by;
 		new Thread(() -> {
-			reproducirSonido("tictacsonido.wav");
-			try { Thread.sleep(800); } catch (Exception e) {} 
+			Clip tictacRival = reproducirSonido("tictacsonido.wav");
+			try { Thread.sleep(800); } catch (Exception e) {}
+			if (tictacRival != null) {
+				tictacRival.stop();
+				tictacRival.close();
+			}
 			rival.explosionActiva = true;
 			reproducirSonido("sonidoexplosion.wav");
 			verificarDanoBombaRival();
@@ -313,22 +348,25 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 
 	private void ejecutarBomba() {
 		new Thread(() -> {
-			reproducirSonido("tictacsonido.wav");
+			Clip sonidoTictac = reproducirSonido("tictacsonido.wav");
 			try { Thread.sleep(800); } catch (Exception e) {} 
+			if (sonidoTictac != null) {
+				sonidoTictac.stop();
+				sonidoTictac.close();
+			}
 			explosion = true;
 			reproducirSonido("sonidoexplosion.wav");
 			verificarDanoBombaJugador();
 			repaint();
-			try { Thread.sleep(500); } catch (Exception e) {}
-			explosion = false; bombaActiva = false;
+			try { Thread.sleep(500); } catch (Exception e) {} 
+			explosion = false; 
+			bombaActiva = false;
 		}).start();
 	}
 
 	private void verificarDanoBombaRival() {
 		int cx = (int)Math.round(posX/70);
 		int cy = (int)Math.round(posY/70);
-
-		// AREA 2x2 
 		if (Math.abs(cx - rival.bX) <= 2 && Math.abs(cy - rival.bY) <= 2 && !invulnerable) {
 			jugadorVida.recibirDano(1); 
 			reproducirSonido("golpeenemigo.wav"); 
@@ -338,8 +376,6 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 
 	private void verificarGolpeEnemigos() {
 		if (invulnerable || !rival.vivo) return;
-		
-		// Verifica si el rival está lo suficientemente cerca para causar daño por contacto
 		if (Math.abs(rival.x - posX) < 80 && Math.abs(rival.y - posY) < 80) {
 			jugadorVida.recibirDano(1); 
 			reproducirSonido("golpeenemigo.wav"); 
@@ -366,7 +402,6 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 		g.drawImage(img, ix + 10, iy + 10, 50, 50, this);
 	}
 
-
 	private void dibujarRival(Graphics g) {
 		if (System.currentTimeMillis() - rival.ultimoCambioFrame > 100) {
 			rival.frameActual = (rival.frameActual + 1) % 9;
@@ -390,7 +425,6 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 		g.drawImage(img, (int)rival.x + offset, (int)rival.y + offset, bossSize, bossSize, this);
 	}
 
-
 	private void dibujarExplosionCruz(Graphics g, int bx, int by) {
 		int[][] ds = {{0,0},{1,0},{-1,0},{0,1},{0,-1}};
 		for (int[] d : ds) {
@@ -399,24 +433,16 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 		}
 	}
 
-
 	private void dibujarExplosionArea(Graphics g, int bx, int by) {
-
-		//Recorre 2 celdas para cada lado
 		for (int i = -2; i <= 2; i++) {
 			for (int j = -2; j <= 2; j++) {
-				int ex = bx + i;
-				int ey = by + j;
-
-				if (ex >= 0 && ex < 17 && ey >= 0 && ey < 11) {
-					if (mapa[ey][ex] != 2) {
-						g.drawImage(imgExplosion, ex * 70, ey * 70, 70, 70, this);
-					}
+				int ex = bx + i, ey = by + j;
+				if (ex >= 0 && ex < 17 && ey >= 0 && ey < 11 && mapa[ey][ex] != 2) {
+					g.drawImage(imgExplosion, ex * 70, ey * 70, 70, 70, this);
 				}
 			}
 		}
 	}
-
 
 	private void cargarRecursos() {
 		imgParedIrrompible = cargarImagen("/utils/suelopiedra2.png");
@@ -435,24 +461,18 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 		}
 	}
 
-
 	private Image cargarImagen(String r) {
 		URL u = getClass().getResource(r);
 		return (u != null) ? new ImageIcon(u).getImage() : null;
 	}
 
-
 	private void verificarDanoBombaJugador() {
-		int rx = (int)Math.round(rival.x/70); // Posición del rival en celdas
-		int ry = (int)Math.round(rival.y/70); // Posición del rival en celdas
-		
-		// Verifica si el jugador está dentro del área de explosión (2x2)
+		int rx = (int)Math.round(rival.x/70), ry = (int)Math.round(rival.y/70); 
 		if ((rx == bombaX && Math.abs(ry - bombaY) <= 1) || (ry == bombaY && Math.abs(rx - bombaX) <= 1)) {
 			rival.recibirDano(); 
 			reproducirSonido("golpeenemigo.wav");
 		}
 	}
-
 
 	private Clip reproducirSonido(String n) {
 		try {
@@ -460,11 +480,11 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 			if (u == null) return null;
 			AudioInputStream a = AudioSystem.getAudioInputStream(u);
 			Clip c = AudioSystem.getClip(); c.open(a);
-			if (c.isControlSupported(FloatControl.Type.MASTER_GAIN)) ((FloatControl) c.getControl(FloatControl.Type.MASTER_GAIN)).setValue(-15.0f);
+			if (c.isControlSupported(FloatControl.Type.MASTER_GAIN)) 
+				((FloatControl) c.getControl(FloatControl.Type.MASTER_GAIN)).setValue(-15.0f);
 			c.start(); return c;
 		} catch (Exception e) { return null; }
 	}
-
 
 	@Override public void keyTyped(KeyEvent e) {}
 	@Override public void addNotify() { super.addNotify(); requestFocusInWindow(); }

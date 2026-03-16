@@ -1,8 +1,6 @@
 package vista;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import javax.sound.sampled.*;
@@ -23,17 +21,13 @@ public class PanelInicio extends JPanel {
     private BotonesRetro botonVolver;
     private JTextPane areaTextoInstrucciones;
 
-    private boolean mostrandoInstrucciones = false;
-
     public PanelInicio() {
-    	
-    	Dimension size = new Dimension(1190, 770); 
+        Dimension size = new Dimension(1190, 770); 
         this.setPreferredSize(size);
         this.setMinimumSize(size);
         this.setMaximumSize(size);
-        this.setLayout(null); // Si usas posicionamiento absoluto
-    	
-        // Configuracion base
+        
+        // Configuración base
         setLayout(new BorderLayout());
         layeredPane = new JLayeredPane();
         add(layeredPane, BorderLayout.CENTER);
@@ -41,7 +35,7 @@ public class PanelInicio extends JPanel {
         // Cargar imagen de fondo
         imagenFondo = new ImageIcon(getClass().getResource("/utils/fondo.png")).getImage();
 
-        // 1. Capa de Fondo (Imagen)
+        // 1. Capa de Fondo
         panelCapaFondo = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -51,7 +45,7 @@ public class PanelInicio extends JPanel {
         };
         layeredPane.add(panelCapaFondo, Integer.valueOf(0));
 
-        // 2. Capa de Contenido (Centrado y Transparencia)
+        // 2. Capa de Contenido
         panelCapaContenido = new JPanel(new GridBagLayout());
         panelCapaContenido.setOpaque(false); 
         layeredPane.add(panelCapaContenido, Integer.valueOf(1));
@@ -62,32 +56,32 @@ public class PanelInicio extends JPanel {
         gbc.fill = GridBagConstraints.NONE; 
         gbc.anchor = GridBagConstraints.CENTER;
 
-        // --- AREA DE INSTRUCCIONES (Oculta al inicio) ---
+        // --- AREA DE INSTRUCCIONES ACTUALIZADA ---
         areaTextoInstrucciones = new JTextPane();
-        areaTextoInstrucciones.setEditable(false);
-        areaTextoInstrucciones.setOpaque(false);
+        areaTextoInstrucciones.setEditable(false); 
+        areaTextoInstrucciones.setFocusable(false);    // <--- EVITA EL FOCO
+        areaTextoInstrucciones.setHighlighter(null);  // <--- EVITA LA SELECCIÓN AZUL
+        areaTextoInstrucciones.setOpaque(false); 
         areaTextoInstrucciones.setContentType("text/html");
         areaTextoInstrucciones.setText(generarTextoInstruccionesHTML());
         areaTextoInstrucciones.setVisible(false);
-        gbc.gridy = 0; // Ahora ocupa la primera fila disponible
+        
+        gbc.gridy = 0;
         panelCapaContenido.add(areaTextoInstrucciones, gbc);
 
-        // --- TAMAÑO DE BOTONES ---
+        // --- BOTONES ---
         Dimension tamBoton = new Dimension(220, 45);
 
-        // Boton Jugar
         botonJugar = new BotonesRetro("EMPEZAR JUEGO");
         botonJugar.setPreferredSize(tamBoton);
         gbc.gridy = 1;
         panelCapaContenido.add(botonJugar, gbc);
 
-        // Boton Instrucciones
         botonInstrucciones = new BotonesRetro("INSTRUCCIONES");
         botonInstrucciones.setPreferredSize(tamBoton);
         gbc.gridy = 2;
         panelCapaContenido.add(botonInstrucciones, gbc);
 
-        // Boton Volver
         botonVolver = new BotonesRetro("VOLVER");
         botonVolver.setPreferredSize(new Dimension(150, 40));
         botonVolver.setVisible(false);
@@ -97,7 +91,6 @@ public class PanelInicio extends JPanel {
         configurarAcciones();
         musicaFondo("/utils/musicaFondo.wav");
 
-        // Ajustar capas cuando cambie el tamaño de la ventana
         addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent e) {
                 actualizarDimensiones();
@@ -118,16 +111,13 @@ public class PanelInicio extends JPanel {
     }
 
     private void alternarVista(boolean verInstrucciones) {
-        mostrandoInstrucciones = verInstrucciones;
-
         // Ocultar/Mostrar elementos
         botonJugar.setVisible(!verInstrucciones);
         botonInstrucciones.setVisible(!verInstrucciones);
-
         areaTextoInstrucciones.setVisible(verInstrucciones);
         botonVolver.setVisible(verInstrucciones);
 
-        // Cambiar el fondo del cuadro (Azul transparente)
+        // Cambiar el fondo del cuadro
         if (verInstrucciones) {
             panelCapaContenido.setOpaque(true);
             panelCapaContenido.setBackground(new Color(20, 30, 85, 210)); 
@@ -135,8 +125,9 @@ public class PanelInicio extends JPanel {
             panelCapaContenido.setOpaque(false);
         }
 
-        revalidate();
-        repaint();
+        panelCapaContenido.revalidate();
+        panelCapaContenido.repaint();
+        this.repaint(); // Refresco extra para limpiar basura visual
     }
 
     private void actualizarDimensiones() {
@@ -166,6 +157,7 @@ public class PanelInicio extends JPanel {
     private void musicaFondo(String ruta) {
         try {
             InputStream audioSrc = getClass().getResourceAsStream(ruta);
+            if (audioSrc == null) return;
             InputStream bufferedIn = new BufferedInputStream(audioSrc);
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(bufferedIn);
             clipMusica = AudioSystem.getClip();
