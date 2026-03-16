@@ -142,32 +142,11 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 		repaint();
 	}
 
-	private void volverAlInicio() {
+	private void Fin() {
 		// Limpiamos cualquier sonido antes de crear el nuevo panel
 		detenerTodoElAudio();
-
-		//Cambiamos al PanelInicio en el hilo de eventos para evitar problemas de concurrencia
-		SwingUtilities.invokeLater(() -> {
-			Window ventana = SwingUtilities.getWindowAncestor(this);
-			if (ventana instanceof JFrame) {
-				JFrame frame = (JFrame) ventana;
-				frame.getContentPane().removeAll();
-
-				//Al instanciarse, PanelInicio llamará a su música y será la única sonando
-				PanelInicio menuPrincipal = new PanelInicio();
-
-				frame.setContentPane(menuPrincipal);
-				frame.setResizable(true);
-				frame.pack(); 
-				frame.setLocationRelativeTo(null);
-				frame.setResizable(false); 
-				frame.revalidate();
-				frame.repaint();
-
-				menuPrincipal.requestFocusInWindow();
-			}
-		});
-	}
+		System.exit(0);
+		}
 
 	
 	//Manejo de teclas para controlar el movimiento del jugador y otras acciones
@@ -178,7 +157,7 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 				reintentosRestantes--;
 				reiniciarNivel();
 			} else {
-				volverAlInicio();
+				Fin();
 			}
 			return;
 		}
@@ -279,7 +258,7 @@ public class PanelEscena4 extends JPanel implements KeyListener {
 			g.drawString("HAS PERDIDO", getWidth()/2-230, getHeight()/2);
 			g.setColor(Color.WHITE); g.setFont(new Font("Arial", Font.BOLD, 25));
 			if (reintentosRestantes > 0) g.drawString("Presiona 'R' para Reintentar (Queda " + reintentosRestantes + ")", getWidth()/2-230, getHeight()/2 + 80);
-			else g.drawString("Presiona 'R' para volver al Inicio", getWidth()/2-180, getHeight()/2 + 80);
+			else g.drawString("Presiona 'R' para salir", getWidth()/2-180, getHeight()/2 + 80);
 		} else if (!rival.vivo) {
 			jugando = false;
 			g.setColor(new Color(0,0,0,200)); g.fillRect(0,0,getWidth(),getHeight());

@@ -388,7 +388,7 @@ public class PanelEscena1 extends JPanel implements KeyListener {
 
 	private void generarEnemigos() {
 		Random r = new Random(); enemigos.clear();
-		while(enemigos.size()<1) {
+		while(enemigos.size()<4) {
 			int ex=r.nextInt(17), ey=r.nextInt(11);
 			if(mapa[ey][ex]==0 && (ex!=1 || ey!=1)) enemigos.add(new Enemigo(ex, ey));
 		}

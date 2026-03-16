@@ -392,7 +392,7 @@ public class PanelEscena3 extends JPanel implements KeyListener {
 	// Genera enemigos en posiciones aleatorias del mapa que sean suelos (0) y no la posición inicial del jugador
 	private void generarEnemigos() {
 		Random r = new Random(); enemigos.clear();
-		while(enemigos.size()<1) {
+		while(enemigos.size()<10) {
 			int ex=r.nextInt(17), ey=r.nextInt(11);
 			if(mapa[ey][ex]==0 && (ex!=1 || ey!=1)) enemigos.add(new Enemigo(ex, ey));
 		}
